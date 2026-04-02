@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>USA Road Trip 2026 — Çağlar</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --ink: #1a1410; --paper: #f5f0e8; --cream: #ede8dc;
+    --accent: #c0392b; --gold: #b8860b; --muted: #7a6f64;
+    --blue: #2c4a6e; --green: #2d6a2d;
+  }
+  body { background: var(--paper); color: var(--ink); font-family: 'DM Sans', sans-serif; min-height: 100vh; overflow-x: hidden; }
+  body::before {
+    content: ''; position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 0;
+  }
+  .container { max-width: 960px; margin: 0 auto; padding: 0 24px 80px; position: relative; z-index: 1; }
+
+  header { text-align: center; padding: 52px 0 36px; border-bottom: 2px solid var(--ink); margin-bottom: 0; }
+  .passport-stamp {
+    border: 3px solid var(--accent); border-radius: 50%; width: 76px; height: 76px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    color: var(--accent); opacity: 0.85; transform: rotate(-8deg); margin: 0 auto 18px;
+  }
+  .passport-stamp span { font-size: 9px; display: block; line-height: 1.5; }
+  .passport-stamp .year { font-size: 15px; font-weight: 700; }
+  h1 { font-family: 'Playfair Display', serif; font-size: clamp(2rem, 6vw, 3.4rem); font-weight: 900; line-height: 1.05; letter-spacing: -0.02em; }
+  .subtitle { font-size: 0.82rem; color: var(--muted); letter-spacing: 0.15em; text-transform: uppercase; margin-top: 10px; }
+
+  .plan-switcher { display: grid; grid-template-columns: 1fr 1fr 1fr; margin: 32px 0 0; border: 2px solid var(--ink); }
+  .plan-tab {
+    padding: 14px 8px; text-align: center; cursor: pointer; background: var(--cream);
+    transition: background 0.2s, color 0.2s; border: none; font-family: 'DM Sans', sans-serif; user-select: none;
+  }
+  .plan-tab:not(:last-child) { border-right: 1px solid var(--ink); }
+  .plan-tab.active-a { background: var(--blue); color: white; }
+  .plan-tab.active-b { background: var(--accent); color: white; }
+  .plan-tab.active-c { background: var(--green); color: white; }
+  .plan-tab-label { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.15em; opacity: 0.8; display: block; margin-bottom: 2px; }
+  .plan-tab-title { font-family: 'Playfair Display', serif; font-size: 0.95rem; font-weight: 700; display: block; }
+  .plan-tab-dates { font-size: 0.65rem; margin-top: 2px; display: block; opacity: 0.75; }
+
+  .plan-panel { display: none; }
+  .plan-panel.active { display: block; }
+
+  .summary-bar { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--ink); border: 1px solid var(--ink); border-top: none; margin-bottom: 40px; }
+  .stat { background: var(--cream); padding: 16px 12px; text-align: center; }
+  .stat-number { font-family: 'Playfair Display', serif; font-size: 1.7rem; font-weight: 700; line-height: 1; display: block; margin-bottom: 3px; }
+  .stat-label { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted); }
+
+  .route-bar { background: var(--ink); color: var(--paper); padding: 10px 20px; display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; font-size: 0.78rem; letter-spacing: 0.1em; margin-bottom: 32px; }
+  .route-bar .arr { color: var(--gold); }
+
+  .day-section { margin-bottom: 32px; opacity: 0; transform: translateY(20px); animation: fadeUp 0.4s forwards; }
+  .day-section:nth-child(1){animation-delay:0.05s} .day-section:nth-child(2){animation-delay:0.10s}
+  .day-section:nth-child(3){animation-delay:0.15s} .day-section:nth-child(4){animation-delay:0.20s}
+  .day-section:nth-child(5){animation-delay:0.25s} .day-section:nth-child(6){animation-delay:0.30s}
+  @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
+
+  .day-header { display: flex; align-items: flex-start; gap: 16px; cursor: pointer; user-select: none; }
+  .day-badge { flex-shrink: 0; width: 60px; height: 60px; background: var(--ink); color: var(--paper); display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: 'Playfair Display', serif; }
+  .day-badge.blue { background: var(--blue); } .day-badge.red { background: var(--accent); } .day-badge.green { background: var(--green); }
+  .day-badge .day-num { font-size: 1.5rem; font-weight: 700; line-height: 1; }
+  .day-badge .day-month { font-size: 0.5rem; text-transform: uppercase; letter-spacing: 0.1em; }
+  .day-title-block { flex: 1; padding-top: 4px; }
+  .day-name { font-family: 'Playfair Display', serif; font-size: 1.15rem; font-weight: 700; }
+  .day-where { font-size: 0.75rem; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; margin-top: 2px; }
+  .day-toggle { font-size: 1rem; color: var(--muted); padding-top: 8px; transition: transform 0.3s; }
+  .day-section.open .day-toggle { transform: rotate(90deg); }
+  .day-body { max-height: 0; overflow: hidden; transition: max-height 0.45s cubic-bezier(0.4,0,0.2,1); }
+  .day-section.open .day-body { max-height: 2400px; }
+  .day-inner { padding: 16px 0 16px 76px; border-left: 2px solid var(--cream); margin-left: 30px; }
+
+  .activity { display: flex; gap: 12px; margin-bottom: 12px; padding: 12px 14px; background: white; border: 1px solid var(--cream); transition: border-color 0.2s, box-shadow 0.2s; }
+  .activity:hover { border-color: var(--gold); box-shadow: 2px 2px 0 var(--cream); }
+  .activity-icon { font-size: 1.3rem; flex-shrink: 0; line-height: 1; padding-top: 2px; }
+  .activity-time { font-size: 0.65rem; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 2px; }
+  .activity-name { font-weight: 500; font-size: 0.9rem; margin-bottom: 3px; }
+  .activity-note { font-size: 0.78rem; color: var(--muted); line-height: 1.5; }
+  .tag { display: inline-block; font-size: 0.6rem; letter-spacing: 0.1em; text-transform: uppercase; padding: 2px 7px; margin-right: 4px; margin-top: 4px; border: 1px solid; }
+  .tag.free { color: var(--green); border-color: var(--green); }
+  .tag.paid { color: var(--accent); border-color: var(--accent); }
+  .tag.food { color: var(--gold); border-color: var(--gold); }
+  .tag.drive { color: var(--blue); border-color: var(--blue); }
+
+  .drive-card { display: flex; align-items: center; gap: 10px; background: var(--blue); color: white; padding: 10px 14px; margin-bottom: 12px; font-size: 0.8rem; }
+  .tips-box { background: var(--cream); border-left: 4px solid var(--gold); padding: 14px 18px; margin-top: 10px; font-size: 0.78rem; line-height: 1.7; color: var(--ink); }
+  .tips-box strong { display: block; margin-bottom: 5px; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--gold); }
+  .warn-box { background: #fff8f0; border-left: 4px solid var(--accent); padding: 12px 16px; margin-bottom: 12px; font-size: 0.78rem; line-height: 1.6; }
+  .warn-box strong { color: var(--accent); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; display: block; margin-bottom: 4px; }
+
+  .dl-wrap { text-align: center; margin-top: 48px; padding-top: 28px; border-top: 2px solid var(--ink); }
+  .dl-btn { display: inline-block; background: var(--ink); color: var(--paper); font-family: 'DM Sans', sans-serif; font-size: 0.75rem; letter-spacing: 0.15em; text-transform: uppercase; padding: 13px 28px; cursor: pointer; border: none; transition: background 0.2s; }
+  .dl-btn:hover { background: var(--accent); }
+
+  @media (max-width: 600px) {
+    .summary-bar { grid-template-columns: repeat(2,1fr); }
+    .day-inner { padding-left: 16px; margin-left: 18px; }
+    .plan-tab-dates { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+<header>
+  <div class="passport-stamp">
+    <span>APR</span><span class="year">2026</span><span>USA</span>
+  </div>
+  <h1>Güney Sahili<br>Road Trip</h1>
+  <p class="subtitle">Çağlar'ın ABD Gezi Planı — Nisan 2026</p>
+  <div class="plan-switcher">
+    <div class="plan-tab active-a" onclick="switchPlan('a')">
+      <span class="plan-tab-label">Plan A</span>
+      <span class="plan-tab-title">Uzun Rota</span>
+      <span class="plan-tab-dates">17–22 Nis · Çar dönüş</span>
+    </div>
+    <div class="plan-tab" onclick="switchPlan('b')">
+      <span class="plan-tab-label">Plan B</span>
+      <span class="plan-tab-title">Kısa Rota</span>
+      <span class="plan-tab-dates">17–19 Nis · Paz dönüş</span>
+    </div>
+    <div class="plan-tab" onclick="switchPlan('c')">
+      <span class="plan-tab-label">Plan C</span>
+      <span class="plan-tab-title">Orta Rota</span>
+      <span class="plan-tab-dates">17–21 Nis · Sal dönüş</span>
+    </div>
+  </div>
+</header>
+
+<!-- ========== PLAN A ========== -->
+<div id="plan-a" class="plan-panel active">
+  <div class="summary-bar">
+    <div class="stat"><span class="stat-number">6</span><span class="stat-label">Gün</span></div>
+    <div class="stat"><span class="stat-number">~700</span><span class="stat-label">Km</span></div>
+    <div class="stat"><span class="stat-number">4</span><span class="stat-label">Şehir</span></div>
+    <div class="stat"><span class="stat-number">22 Nis</span><span class="stat-label">Dönüş</span></div>
+  </div>
+  <div class="route-bar">
+    <span>Wilmington</span><span class="arr">→</span><span>Charleston</span><span class="arr">→</span><span>Savannah</span><span class="arr">→</span><span>Atlanta</span><span class="arr">→</span><span>IST ✈️</span>
+  </div>
+
+  <div class="day-section open" onclick="toggleDay(this)">
+    <div class="day-header">
+      <div class="day-badge"><span class="day-num">17</span><span class="day-month">Nis · Cum</span></div>
+      <div class="day-title-block"><div class="day-name">Wilmington Keşfi</div><div class="day-where">📍 Wilmington, NC</div></div>
+      <div class="day-toggle">▶</div>
+    </div>
+    <div class="day-body"><div class="day-inner">
+      <div class="activity"><div class="activity-icon">🚗</div><div>
+        <div class="activity-time">İlk İş</div><div class="activity-name">Araba Kiralama — ILM Airport</div>
+        <div class="activity-note">One-way kiralama, Atlanta'da teslim. AVIS/Hertz önerilir.</div>
+        <span class="tag drive">One-Way</span>
+      </div></div>
+      <div class="activity"><div class="activity-icon">🌊</div><div>
+        <div class="activity-time">09:00 – 11:00</div><div class="activity-name">Wilmington Riverwalk</div>
+        <div class="activity-note">Cape Fear Nehri kenarı, USS North Carolina silüeti. Rating: 4.7/5.</div>
+        <span class="tag free">Ücretsiz</span>
+      </div></div>
+      <div class="activity"><div class="activity-icon">🌿</div><div>
+        <div class="activity-time">11:00 – 13:00</div><div class="activity-name">Airlie Gardens</div>
+        <div class="activity-note">67 dönümlük bahar bahçesi, nisan'da çiçek dolu. Rating: 4.8/5.</div>
+        <span class="tag paid">~$10</span>
+      </div></div>
+      <div class="activity"><div class="activity-icon">🍽️</div><div>
+        <div class="activity-time">13:00 – 14:30</div><div class="activity-name">Öğle — Downtown</div>
+        <div class="activity-note">Front Street Brewery veya Flaming Amy's.</div>
+        <span class="tag food">Yemek</span>
+      </div></div>
+      <div class="activity"><div class="activity-icon">🏛️</div><div>
+        <div class="activity-time">14:30 – 16:30</div><div class="activity-name">Bellamy Mansion + Burgwin-Wright House</div>
+        <div class="activity-note">Antebellum mimarisi, Market Street üzerinde.</div>
+        <span class="tag paid">~$25</span>
+      </div></div>
+      <div class="activity"><div class="activity-icon">🌅</div><div>
+        <div class="activity-time">17:00 – 18:30</div><div class="activity-name">Wrightsville Beach</div>
+        <div class="activity-note">15 dk mesafede Atlantik sahili. Workshop yorgunluğunu at!</div>
+        <span class="tag free">Ücretsiz</span>
+      </div></div>
+    </div></div>
+  </div>
+
+  <div class="day-section" onclick="toggleDay(this)">
+    <div class="day-header">
+      <div class="day-badge"><span class="day-num">18</span><span class="day-month">Nis · Cmt</span></div>
+      <div class="day-title-block"><div class="day-name">Wilmington → Charleston</div><div class="day-where">📍 NC → SC</div></div>
+      <div class="day-toggle">▶</div>
+    </div>
+    <div class="day-body"><div class="day-inner">
+      <div class="drive-card">🚗 <span><strong>Wilmington → Charleston</strong> — ~310 km · ~3.5–4 saat | US-17 South</span></div>
+      <div class="activity"><div class="activity-icon">☕</div><div>
+        <div class="activity-time">07:30 – 08:00</div><div class="activity-name">Erken Kahvaltı & Yola Çıkış</div>
+        <div class="activity-note">08:00'de ayrıl. US-17 manzaralı ama ~4 saat sürebilir. Charleston'a en erken 12:00–13:00 arası varış.</div>
+      </div></div>
+      <div class="activity"><div class="activity-icon">🎨</div><div>
+        <div class="activity-time">13:00 – 14:00</div><div class="activity-name">Rainbow Row</div>
+        <div class="activity-note">Renkli kolonyal evler. ABD'nin en çok fotoğraflanan caddeleri arasında.</div>
+        <span class="tag free">Ücretsiz</span>
+      </div></div>
+      <div class="activity"><div class="activity-icon">🌊</div><div>
+        <div class="activity-time">14:00 – 15:30</div><div class="activity-name">Waterfront Park & Öğle</div>
+        <div class="activity-note">Charleston Limanı. Husk veya Leon's Oyster Shop.</div>
+        <span class="tag free">Park ücretsiz</span><span class="tag food">Yemek</span>
+      </div></div>
+      <div class="activity"><div class="activity-icon">🌺</div><div>
+        <div class="activity-time">15:30 – 17:30</div><div class="activity-name">Magnolia Plantation & Gardens</div>
+        <div class="activity-note">Nisan = azalyalar tam açık. Rating: 4.5/5.</div>
+        <span class="tag paid">~$20-25</span>
+      </div></div>
+      <div class="activity"><div class="activity-icon">🍷</div><div>
+        <div class="activity-time">19:00 →</div><div class="activity-name">King Street Akşam</div>
+        <div class="activity-note">Charleston'ın meşhur yemek sokağı.</div>
+        <span class="tag food">Akşam</span>
+      </div></div>
+    </div></div>
+  </div>
+
+  <div class="day-section" onclick="toggleDay(this)">
+    <div class="day-header">
+      <div class="day-badge"><span class="day-num">19</span><span class="day-month">Nis · Paz</span></div>
+      <div class="day-title-block"><div class="day-name">Charleston Derinlemesine</div><div class="day-where">📍 Charleston, SC</div></div>
+      <div class="day-toggle">▶</div>
+    </div>
+    <div class="day-body"><div class="day-inner">
+      <div class="warn-box"><strong>⚠️ Fort Sumter — Zorunlu Rezervasyon</strong>Nisan = Spring Break. Biletler haftalar öncesinden bitiyor. Şimdi online al!</div>
+      <div class="activity"><div class="activity-icon">⛵</div><div>
+        <div class="activity-time">09:00 – 11:30</div><div class="activity-name">Fort Sumter Feribot Turu</div>
+        <div class="activity-note">İç Savaş'ın başladığı ada. Rating: 4.7/5.</div>
+        <span class="tag paid">~$30</span>
+      </div></div>
+      <div class="activity"><div class="activity-icon">🏛️</div><div>
+        <div class="activity-time">12:00 – 13:30</div><div class="activity-name">Drayton Hall</div>
+        <div class="activity-note">Amerika'nın en eski Palladian evi (1738). Rating: 4.6/5.</div>
+        <span class="tag paid">~$22</span>
+      </div></div>
+      <div class="activity"><div class="activity-icon">🚶</div><div>
+        <div class="activity-time">14:30 – 16:30</div><div class="activity-name">Historic District Yürüyüşü</div>
+        <div class="activity-note">Battery Park, White Point Garden, Church Street.</div>
+        <span class="tag free">Ücretsiz</span>
+      </div></div>
+      <div class="activity"><div class="activity-icon">👻</div><div>
+        <div class="activity-time">20:00 – 22:00</div><div class="activity-name">Ghost Tour (isteğe bağlı)</div>
+        <div class="activity-note">Bulldog Tours veya Tour Charleston. ~$25.</div>
+        <span class="tag paid">~$25</span>
+      </div></div>
+    </div></div>
+  </div>
+
+  <div class="day-section" onclick="toggleDay(this)">
+    <div class="day-header">
+      <div class="day-badge"><span class="day-num">20</span><span class="day-month">Nis · Pzt</span></div>
+      <div class="day-title-block"><div class="day-name">Charleston → Savannah</div><div class="day-where">📍 SC → GA</div></div>
+      <div class="day-toggle">▶</div>
+    </div>
+    <div class="day-body"><div class="day-inner">
+      <div class="drive-card">🚗 <span><strong>Charleston → Savannah</strong> — ~165 km · ~2 saat | I-95 South | Yolda Beaufort önerilir</span></div>
+      <div class="activity"><div class="activity-icon">🌿</div><div>
+        <div class="activity-time">Yolda Mola</div><div class="activity-name">Beaufort, SC</div>
+        <div class="activity-note">US-21'i al, "Küçük Charleston"da 30 dk ara.</div>
+        <span class="tag free">Ücretsiz</span>
+      </div></div>
+      <div class="activity"><div class="activity-icon">⛲</div><div>
+        <div class="activity-time">13:00 – 14:30</div><div class="activity-name">Forsyth Park</div>
+        <div class="activity-note">Savannah'ın kalbi, ikonik çeşme. Rating: 4.8/5.</div>
+        <span class="tag free">Ücretsiz</span>
+      </div></div>
+      <div class="activity"><div class="activity-icon">🏛️</div><div>
+        <div class="activity-time">14:30 – 16:00</div><div class="activity-name">Owens-Thomas House</div>
+        <div class="activity-note">⚠️ Saatleri teyit et (genelde 10:00–16:00). Rating: 4.5/5.</div>
+        <span class="tag paid">~$20</span>
+      </div></div>
+      <div class="activity"><div class="activity-icon">📖</div><div>
+        <div class="activity-time">14:30 – 16:00</div><div class="activity-name">Mercer Williams House</div>
+        <div class="activity-note">⚠️ 17:00'de kapanıyor, erken git. Rating: 4.6/5.</div>
+        <span class="tag paid">~$15</span>
+      </div></div>
+      <div class="activity"><div class="activity-icon">🍤</div><div>
+        <div class="activity-time">19:30 →</div><div class="activity-name">River Street Akşamı</div>
+        <div class="activity-note">Sokakta to-go bardakla yürümek serbest!</div>
+        <span class="tag food">Akşam</span>
+      </div></div>
+    </div></div>
+  </div>
+
+  <div class="day-section" onclick="toggleDay(this)">
+    <div class="day-header">
+      <div class="day-badge"><span class="day-num">21</span><span class="day-month">Nis · Sal</span></div>
+      <div class="day-title-block"><div class="day-name">Savannah → Atlanta</div><div class="day-where">📍 GA</div></div>
+      <div class="day-toggle">▶</div>
+    </div>
+    <div class="day-body"><div class="day-inner">
+      <div class="drive-card">🚗 <span><strong>Savannah → Atlanta</strong> — ~390 km · 4+ saat | I-16 W → I-75 N | +1 saat trafik payı ekle</span></div>
+      <div class="activity"><div class="activity-icon">⚓</div><div>
+        <div class="activity-time">09:00 – 10:30</div><div class="activity-name">Old Fort Jackson (Savannah)</div>
+        <div class="activity-note">Topçu ateşleme gösterisi, konteyner gemisi manzarası. Rating: 4.7/5.</div>
+        <span class="tag paid">~$10</span>
+      </div></div>
+      <div class="activity"><div class="activity-icon">✊</div><div>
+        <div class="activity-time">15:30 – 17:00</div><div class="activity-name">MLK Jr. Ulusal Tarihi Park</div>
+        <div class="activity-note">⚠️ Binalar 17:00'de kapanıyor. Ücretsiz! Rating: 4.8/5.</div>
+        <span class="tag free">Ücretsiz</span>
+      </div></div>
+      <div class="activity"><div class="activity-icon">🏟️</div><div>
+        <div class="activity-time">18:00 – 19:30</div><div class="activity-name">Centennial Olympic Park</div>
+        <div class="activity-note">1996 Olimpiyatları anıtı. Georgia Aquarium yanı başında.</div>
+        <span class="tag free">Ücretsiz</span>
+      </div></div>
+      <div class="tips-box"><strong>⚠️ Atlanta Trafiği</strong>I-75/85 junction öğleden sonra çok tıkanır. Savannah'tan 08:30'da çık.</div>
+    </div></div>
+  </div>
+
+  <div class="day-section" onclick="toggleDay(this)">
+    <div class="day-header">
+      <div class="day-badge red"><span class="day-num">22</span><span class="day-month">Nis · Çar</span></div>
+      <div class="day-title-block"><div class="day-name">Atlanta + Dönüş ✈️</div><div class="day-where">📍 Atlanta → İstanbul</div></div>
+      <div class="day-toggle">▶</div>
+    </div>
+    <div class="day-body"><div class="day-inner">
+      <div class="activity"><div class="activity-icon">🦈</div><div>
+        <div class="activity-time">10:00 – 13:00</div><div class="activity-name">Georgia Aquarium</div>
+        <div class="activity-note">Whale shark tüneli, yunusu şovu. Rating: 4.6/5.</div>
+        <span class="tag paid">~$40</span>
+      </div></div>
+      <div class="activity"><div class="activity-icon">🥤</div><div>
+        <div class="activity-time">13:30 – 15:00</div><div class="activity-name">World of Coca-Cola</div>
+        <div class="activity-note">100+ ülkeden tatma deneyimi. Aquarium'a 200m. Rating: 4.4/5.</div>
+        <span class="tag paid">~$22</span>
+      </div></div>
+      <div class="activity"><div class="activity-icon">✈️</div><div>
+        <div class="activity-time">Akşam</div><div class="activity-name">ATL → İstanbul</div>
+        <div class="activity-note">THY International Terminal. ⚠️ Rental Car'dan SkyTrain + yürüyüş 45–60 dk. En az 3 saat önce havalimanında ol!</div>
+        <span class="tag drive">ATL → IST</span>
+      </div></div>
+      <div class="tips-box"><strong>🧳 Geri Dönüş</strong>Duty-free: Georgia Peach ürünleri, Bourbon, hot sauce. Harika hediye!</div>
+    </div></div>
+  </div>
+</div><!-- /plan-a -->
+
+<!-- ========== PLAN B ========== -->
+<div id="plan-b" class="plan-panel">
+  <div class="summary-bar">
+    <div class="stat"><span class="stat-number">3</span><span class="stat-label">Gün</span></div>
+    <div class="stat"><span class="stat-number">~480</span><span class="stat-label">Km</span></div>
+    <div class="stat"><span class="stat-number">3</span><span class="stat-label">Şehir</span></div>
+    <div class="stat"><span class="stat-number">19 Nis</span><span class="stat-label">Dönüş</span></div>
+  </div>
+  <div class="route-bar">
+    <span>Wilmington</span><span class="arr">→</span><span>Charleston</span><span class="arr">→</span><span>Atlanta</span><span class="arr">→</span><span>IST ✈️ 19 Nisan 20:00</span>
+  </div>
+  <div class="warn-box" style="margin-bottom:24px;">
+    <strong>⚠️ Plan B — Sıkışık Program</strong>
+    19 Pazar 20:00 uçuşu için Atlanta'da 17:00'de hazır olman gerekiyor. Charleston'dan en geç 07:30'da çık. Savannah bu planla atlanıyor.
+  </div>
+
+  <div class="day-section open" onclick="toggleDay(this)">
+    <div class="day-header">
+      <div class="day-badge blue"><span class="day-num">17</span><span class="day-month">Nis · Cum</span></div>
+      <div class="day-title-block"><div class="day-name">Wilmington Keşfi</div><div class="day-where">📍 Wilmington, NC</div></div>
+      <div class="day-toggle">▶</div>
+    </div>
+    <div class="day-body"><div class="day-inner">
+      <div class="activity"><div class="activity-icon">🚗</div><div>
+        <div class="activity-time">İlk İş</div><div class="activity-name">Araba Kiralama — ILM Airport</div>
+        <div class="activity-note">One-way, Atlanta'da teslim.</div><span class="tag drive">One-Way</span>
+      </div></div>
+      <div class="activity"><div class="activity-icon">🌊</div><div>
+        <div class="activity-time">09:00 – 11:00</div><div class="activity-name">Wilmington Riverwalk</div>
+        <div class="activity-note">Cape Fear Nehri, USS North Carolina silüeti. Rating: 4.7/5.</div>
+        <span class="tag free">Ücretsiz</span>
+      </div></div>
+      <div class="activity"><div class="activity-icon">🌿</div><div>
+        <div class="activity-time">11:00 – 13:00</div><div class="activity-name">Airlie Gardens</div>
+        <div class="activity-note">Nisan'da bahar çiçekleri tam açık. Rating: 4.8/5.</div>
+        <span class="tag paid">~$10</span>
+      </div></div>
+      <div class="activity"><div class="activity-icon">🍽️</div><div>
+        <div class="activity-time">13:00 – 14:30</div><div class="activity-name">Öğle — Downtown</div>
+        <div class="activity-note">Front Street Brewery.</div><span class="tag food">Yemek</span>
+      </div></div>
+      <div class="activity"><div class="activity-icon">🏛️</div><div>
+        <div class="activity-time">14:30 – 16:30</div><div class="activity-name">Bellamy Mansion + Burgwin-Wright</div>
+        <div class="activity-note">Antebellum mimarisi.</div><span class="tag paid">~$25</span>
+      </div></div>
+      <div class="activity"><div class="activity-icon">🌅</div><div>
+        <div class="activity-time">17:00 – 18:30</div><div class="activity-name">Wrightsville Beach</div>
+        <div class="activity-note">Atlantik gün batımı. Yarın 07:30 çıkışın var, erken uyu!</div>
+        <span class="tag free">Ücretsiz</span>
+      </div></div>
+    </div></div>
+  </div>
+
+  <div class="day-section" onclick="toggleDay(this)">
+    <div class="day-header">
+      <div class="day-badge blue"><span class="day-num">18</span><span class="day-month">Nis · Cmt</span></div>
+      <div class="day-title-block"><div class="day-name">Wilmington → Charleston</div><div class="day-where">📍 NC → SC</div></div>
+      <div class="day-toggle">▶</div>
+    </div>
+    <div class="day-body"><div class="day-inner">
+      <div class="drive-card">🚗 <span><strong>Wilmington → Charleston</strong> — ~310 km · ~3.5–4 saat | 08:00 çıkış → 12:00 varış</span></div>
+      <div class="activity"><div class="activity-icon">☕</div><div>
+        <div class="activity-time">07:30 – 08:00</div><div class="activity-name">Erken Kahvaltı & Yola Çıkış</div>
+        <div class="activity-note">08:00'de kesin yolda ol.</div>
+      </div></div>
+      <div class="activity"><div class="activity-icon">🎨</div><div>
+        <div class="activity-time">12:00 – 13:00</div><div class="activity-name">Rainbow Row</div>
+        <div class="activity-note">Renkli kolonyal evler.</div><span class="tag free">Ücretsiz</span>
+      </div></div>
+      <div class="activity"><div class="activity-icon">🌊</div><div>
+        <div class="activity-time">13:00 – 14:30</div><div class="activity-name">Waterfront Park & Öğle</div>
+        <div class="activity-note">Husk veya Leon's Oyster Shop.</div>
+        <span class="tag free">Park ücretsiz</span><span class="tag food">Yemek</span>
+      </div></div>
+      <div class="activity"><div class="activity-icon">🚶</div><div>
+        <div class="activity-time">14:30 – 16:30</div><div class="activity-name">Historic District Yürüyüşü</div>
+        <div class="activity-note">Battery Park, White Point Garden.</div><span class="tag free">Ücretsiz</span>
+      </div></div>
+      <div class="activity"><div class="activity-icon">🍷</div><div>
+        <div class="activity-time">18:30 – 20:30</div><div class="activity-name">King Street Akşam</div>
+        <div class="activity-note">Erkenden ye, yarın 07:30 çıkış var!</div><span class="tag food">Akşam</span>
+      </div></div>
+      <div class="tips-box"><strong>🌙 Yarına Hazırlık</strong>Yarın Atlanta'ya 6 saat sürüş + uçuş. Telefonu şarj et, benzin doldur, erken uyu.</div>
+    </div></div>
+  </div>
+
+  <div class="day-section" onclick="toggleDay(this)">
+    <div class="day-header">
+      <div class="day-badge red"><span class="day-num">19</span><span class="day-month">Nis · Paz</span></div>
+      <div class="day-title-block"><div class="day-name">Charleston → Atlanta ✈️</div><div class="day-where">📍 SC → GA → IST</div></div>
+      <div class="day-toggle">▶</div>
+    </div>
+    <div class="day-body"><div class="day-inner">
+      <div class="drive-card">🚗 <span><strong>Charleston → Atlanta</strong> — ~480 km · ~5–6 saat | I-26 W → I-20 W</span></div>
+      <div class="warn-box"><strong>⏰ Kritik Zaman Çizelgesi</strong>07:30 çıkış → ~13:30 Atlanta → 14:00–16:00 şehir turu → 17:00 havalimanı → 20:00 uçuş</div>
+      <div class="activity"><div class="activity-icon">☕</div><div>
+        <div class="activity-time">07:00 – 07:30</div><div class="activity-name">Kahvaltı & Yola Çıkış</div>
+        <div class="activity-note">07:30'da kesinlikle yolda ol.</div>
+      </div></div>
+      <div class="activity"><div class="activity-icon">✊</div><div>
+        <div class="activity-time">13:30 – 15:00</div><div class="activity-name">MLK Jr. Ulusal Tarihi Park</div>
+        <div class="activity-note">⚠️ 17:00'de kapanıyor. Ücretsiz! Rating: 4.8/5.</div>
+        <span class="tag free">Ücretsiz</span>
+      </div></div>
+      <div class="activity"><div class="activity-icon">🏟️</div><div>
+        <div class="activity-time">15:00 – 16:00</div><div class="activity-name">Centennial Olympic Park</div>
+        <div class="activity-note">Hızlı fotoğraf turu.</div><span class="tag free">Ücretsiz</span>
+      </div></div>
+      <div class="activity"><div class="activity-icon">✈️</div><div>
+        <div class="activity-time">20:00</div><div class="activity-name">ATL → İstanbul</div>
+        <div class="activity-note">⚠️ Rental Car → SkyTrain → International Terminal: 45–60 dk. 17:00'de havalimanında ol!</div>
+        <span class="tag drive">ATL → IST</span>
+      </div></div>
+      <div class="tips-box"><strong>🧳 Tavsiye</strong>Trafik kötüyse MLK'yı atla, direkt havalimanına git. Uçuşu kaçırmak her şeyden kötü!</div>
+    </div></div>
+  </div>
+</div><!-- /plan-b -->
+
+<!-- ========== PLAN C ========== -->
+<div id="plan-c" class="plan-panel">
+  <div class="summary-bar">
+    <div class="stat"><span class="stat-number">5</span><span class="stat-label">Gün</span></div>
+    <div class="stat"><span class="stat-number">~490</span><span class="stat-label">Km</span></div>
+    <div class="stat"><span class="stat-number">3</span><span class="stat-label">Şehir</span></div>
+    <div class="stat"><span class="stat-number">21 Nis</span><span class="stat-label">Dönüş</span></div>
+  </div>
+  <div class="route-bar">
+    <span>Wilmington</span><span class="arr">→</span><span>Charleston</span><span class="arr">→</span><span>Atlanta</span><span class="arr">→</span><span>IST ✈️ 21 Nisan 21:50</span>
+  </div>
+  <div class="warn-box" style="margin-bottom:24px;">
+    <strong>ℹ️ Plan C — Savannah Yok, Atlanta Tam Gün Var</strong>
+    21 Salı 21:50 uçuşu rahat. Atlanta'da bütün gün var — Georgia Aquarium, Coca-Cola, MLK hepsini görebilirsin. 18:30'da havalimanında ol yeterli.
+  </div>
+
+  <div class="day-section open" onclick="toggleDay(this)">
+    <div class="day-header">
+      <div class="day-badge green"><span class="day-num">17</span><span class="day-month">Nis · Cum</span></div>
+      <div class="day-title-block"><div class="day-name">Wilmington Keşfi</div><div class="day-where">📍 Wilmington, NC</div></div>
+      <div class="day-toggle">▶</div>
+    </div>
+    <div class="day-body"><div class="day-inner">
+      <div class="activity"><div class="activity-icon">🚗</div><div>
+        <div class="activity-time">İlk İş</div><div class="activity-name">Araba Kiralama — ILM Airport</div>
+        <div class="activity-note">One-way, Atlanta'da teslim.</div><span class="tag drive">One-Way</span>
+      </div></div>
+      <div class="activity"><div class="activity-icon">🌊</div><div>
+        <div class="activity-time">09:00 – 11:00</div><div class="activity-name">Wilmington Riverwalk</div>
+        <div class="activity-note">Cape Fear Nehri, USS North Carolina silüeti. Rating: 4.7/5.</div>
+        <span class="tag free">Ücretsiz</span>
+      </div></div>
+      <div class="activity"><div class="activity-icon">🌿</div><div>
+        <div class="activity-time">11:00 – 13:00</div><div class="activity-name">Airlie Gardens</div>
+        <div class="activity-note">67 dönümlük bahar bahçesi. Rating: 4.8/5.</div>
+        <span class="tag paid">~$10</span>
+      </div></div>
+      <div class="activity"><div class="activity-icon">🍽️</div><div>
+        <div class="activity-time">13:00 – 14:30</div><div class="activity-name">Öğle — Downtown</div>
+        <div class="activity-note">Front Street Brewery.</div><span class="tag food">Yemek</span>
+      </div></div>
+      <div class="activity"><div class="activity-icon">🏛️</div><div>
+        <div class="activity-time">14:30 – 16:30</div><div class="activity-name">Bellamy Mansion + Burgwin-Wright</div>
+        <div class="activity-note">Antebellum mimarisi.</div><span class="tag paid">~$25</span>
+      </div></div>
+      <div class="activity"><div class="activity-icon">🌅</div><div>
+        <div class="activity-time">17:00 – 18:30</div><div class="activity-name">Wrightsville Beach</div>
+        <div class="activity-note">Atlantik gün batımı.</div><span class="tag free">Ücretsiz</span>
+      </div></div>
+    </div></div>
+  </div>
+
+  <div class="day-section" onclick="toggleDay(this)">
+    <div class="day-header">
+      <div class="day-badge green"><span class="day-num">18</span><span class="day-month">Nis · Cmt</span></div>
+      <div class="day-title-block"><div class="day-name">Wilmington → Charleston</div><div class="day-where">📍 NC → SC</div></div>
+      <div class="day-toggle">▶</div>
+    </div>
+    <div class="day-body"><div class="day-inner">
+      <div class="drive-card">🚗 <span><strong>Wilmington → Charleston</strong> — ~310 km · ~3.5–4 saat | 08:00 çıkış</span></div>
+      <div class="activity"><div class="activity-icon">☕</div><div>
+        <div class="activity-time">07:30 – 08:00</div><div class="activity-name">Erken Kahvaltı & Yola Çıkış</div>
+        <div class="activity-note">08:00'de yola çık, Charleston'a 12:00–13:00 arası varış.</div>
+      </div></div>
+      <div class="activity"><div class="activity-icon">🎨</div><div>
+        <div class="activity-time">13:00 – 14:00</div><div class="activity-name">Rainbow Row</div>
+        <div class="activity-note">Renkli kolonyal evler, fotoğraf durağı.</div><span class="tag free">Ücretsiz</span>
+      </div></div>
+      <div class="activity"><div class="activity-icon">🌊</div><div>
+        <div class="activity-time">14:00 – 15:30</div><div class="activity-name">Waterfront Park & Öğle</div>
+        <div class="activity-note">Husk veya Leon's Oyster Shop.</div>
+        <span class="tag free">Park ücretsiz</span><span class="tag food">Yemek</span>
+      </div></div>
+      <div class="activity"><div class="activity-icon">🌺</div><div>
+        <div class="activity-time">15:30 – 17:30</div><div class="activity-name">Magnolia Plantation & Gardens</div>
+        <div class="activity-note">Nisan = azalyalar tam açık. Rating: 4.5/5.</div>
+        <span class="tag paid">~$20-25</span>
+      </div></div>
+      <div class="activity"><div class="activity-icon">🍷</div><div>
+        <div class="activity-time">19:00 →</div><div class="activity-name">King Street Akşam</div>
+        <div class="activity-note">Charleston'ın en iyi restoranları.</div><span class="tag food">Akşam</span>
+      </div></div>
+    </div></div>
+  </div>
+
+  <div class="day-section" onclick="toggleDay(this)">
+    <div class="day-header">
+      <div class="day-badge green"><span class="day-num">19</span><span class="day-month">Nis · Paz</span></div>
+      <div class="day-title-block"><div class="day-name">Charleston Derinlemesine</div><div class="day-where">📍 Charleston, SC</div></div>
+      <div class="day-toggle">▶</div>
+    </div>
+    <div class="day-body"><div class="day-inner">
+      <div class="warn-box"><strong>⚠️ Fort Sumter — Zorunlu Rezervasyon</strong>Nisan = Spring Break. Biletler haftalar öncesinden bitiyor. Şimdi online al!</div>
+      <div class="activity"><div class="activity-icon">⛵</div><div>
+        <div class="activity-time">09:00 – 11:30</div><div class="activity-name">Fort Sumter Feribot Turu</div>
+        <div class="activity-note">İç Savaş'ın başladığı ada. Rating: 4.7/5.</div>
+        <span class="tag paid">~$30</span>
+      </div></div>
+      <div class="activity"><div class="activity-icon">🏛️</div><div>
+        <div class="activity-time">12:00 – 13:30</div><div class="activity-name">Drayton Hall</div>
+        <div class="activity-note">Amerika'nın en eski Palladian evi (1738). Rating: 4.6/5.</div>
+        <span class="tag paid">~$22</span>
+      </div></div>
+      <div class="activity"><div class="activity-icon">🚶</div><div>
+        <div class="activity-time">14:30 – 16:30</div><div class="activity-name">Historic District Yürüyüşü</div>
+        <div class="activity-note">Battery Park, White Point Garden, Church Street.</div>
+        <span class="tag free">Ücretsiz</span>
+      </div></div>
+      <div class="activity"><div class="activity-icon">👻</div><div>
+        <div class="activity-time">20:00 – 22:00</div><div class="activity-name">Ghost Tour (isteğe bağlı)</div>
+        <div class="activity-note">Bulldog Tours veya Tour Charleston.</div>
+        <span class="tag paid">~$25</span>
+      </div></div>
+    </div></div>
+  </div>
+
+  <div class="day-section" onclick="toggleDay(this)">
+    <div class="day-header">
+      <div class="day-badge green"><span class="day-num">20</span><span class="day-month">Nis · Pzt</span></div>
+      <div class="day-title-block"><div class="day-name">Charleston → Atlanta</div><div class="day-where">📍 SC → GA</div></div>
+      <div class="day-toggle">▶</div>
+    </div>
+    <div class="day-body"><div class="day-inner">
+      <div class="drive-card">🚗 <span><strong>Charleston → Atlanta</strong> — ~480 km · ~5–6 saat | I-26 W → I-20 W | +1 saat trafik payı</span></div>
+      <div class="activity"><div class="activity-icon">☕</div><div>
+        <div class="activity-time">07:30 – 08:00</div><div class="activity-name">Erken Kahvaltı & Yola Çıkış</div>
+        <div class="activity-note">08:00'de yola çık. Atlanta'ya 14:00–15:00 arası varış hedefle.</div>
+      </div></div>
+      <div class="activity"><div class="activity-icon">✊</div><div>
+        <div class="activity-time">14:30 – 16:30</div><div class="activity-name">MLK Jr. Ulusal Tarihi Park</div>
+        <div class="activity-note">⚠️ Binalar 17:00'de kapanıyor, erken var olmaya çalış. Ücretsiz! Rating: 4.8/5.</div>
+        <span class="tag free">Ücretsiz</span>
+      </div></div>
+      <div class="activity"><div class="activity-icon">🏟️</div><div>
+        <div class="activity-time">17:00 – 18:30</div><div class="activity-name">Centennial Olympic Park</div>
+        <div class="activity-note">1996 Olimpiyatları anıtı. Akşam yürüyüşü için ideal.</div>
+        <span class="tag free">Ücretsiz</span>
+      </div></div>
+      <div class="activity"><div class="activity-icon">🍽️</div><div>
+        <div class="activity-time">19:30 →</div><div class="activity-name">Atlanta Akşam Yemeği</div>
+        <div class="activity-note">Ponce City Market veya Beltline çevresinde Güney mutfağı. Yarın rahat — 21:50 uçuşun var!</div>
+        <span class="tag food">Akşam</span>
+      </div></div>
+      <div class="tips-box"><strong>⚠️ Atlanta Trafiği</strong>Pzt akşamı I-75/85 tıkanık. Charleston'dan 08:00'de çıkarsan 14:00–15:00 arası Atlanta'dasın.</div>
+    </div></div>
+  </div>
+
+  <div class="day-section" onclick="toggleDay(this)">
+    <div class="day-header">
+      <div class="day-badge red"><span class="day-num">21</span><span class="day-month">Nis · Sal</span></div>
+      <div class="day-title-block"><div class="day-name">Atlanta Tam Gün + Dönüş ✈️</div><div class="day-where">📍 Atlanta → İstanbul</div></div>
+      <div class="day-toggle">▶</div>
+    </div>
+    <div class="day-body"><div class="day-inner">
+      <div class="warn-box"><strong>⏰ Uçuş: 21:50 | Havalimanında: 18:30</strong>Gün boş, rahat! Georgia Aquarium + Coca-Cola + MLK Park hepsini sığdırabilirsin.</div>
+      <div class="activity"><div class="activity-icon">🦈</div><div>
+        <div class="activity-time">10:00 – 13:00</div><div class="activity-name">Georgia Aquarium</div>
+        <div class="activity-note">Dünyanın en büyük akvaryumlarından. Whale shark tüneli, yunusu şovu. Rating: 4.6/5.</div>
+        <span class="tag paid">~$40</span>
+      </div></div>
+      <div class="activity"><div class="activity-icon">🥤</div><div>
+        <div class="activity-time">13:30 – 15:00</div><div class="activity-name">World of Coca-Cola</div>
+        <div class="activity-note">100+ ülkeden tatma deneyimi. Aquarium'a 200m. Rating: 4.4/5.</div>
+        <span class="tag paid">~$22</span>
+      </div></div>
+      <div class="activity"><div class="activity-icon">🏟️</div><div>
+        <div class="activity-time">15:00 – 16:00</div><div class="activity-name">Centennial Olympic Park</div>
+        <div class="activity-note">Dün görmediysen bugün gez. Aquarium'a yürüme mesafesi.</div>
+        <span class="tag free">Ücretsiz</span>
+      </div></div>
+      <div class="activity"><div class="activity-icon">🍔</div><div>
+        <div class="activity-time">16:00 – 17:00</div><div class="activity-name">Son Öğün — Atlanta</div>
+        <div class="activity-note">Varsity Drive-In (1928'den bu yana, Atlanta ikonu) veya Fox Bros BBQ.</div>
+        <span class="tag food">Son Yemek</span>
+      </div></div>
+      <div class="activity"><div class="activity-icon">🚗</div><div>
+        <div class="activity-time">17:30 – 18:30</div><div class="activity-name">Arabayı Teslim + Havalimanı</div>
+        <div class="activity-note">Rental Car Center → araç teslim → SkyTrain ile International Terminal. 45–60 dk hesapla.</div>
+        <span class="tag drive">ATL Airport</span>
+      </div></div>
+      <div class="activity"><div class="activity-icon">✈️</div><div>
+        <div class="activity-time">21:50</div><div class="activity-name">ATL → İstanbul</div>
+        <div class="activity-note">THY uçuşu, Maynard H. Jackson Jr. International Terminal. ~10–11 saat. İyi yolculuklar Çağlar! 🇹🇷</div>
+        <span class="tag drive">ATL → IST</span>
+      </div></div>
+      <div class="tips-box"><strong>🧳 Geri Dönüş</strong>Duty-free: Georgia Peach ürünleri, Bourbon, yerel hot sauce. Harika hediyeler! Son gece Atlanta'da bir otelde kal — havalimanına yakın: Marriott Gateway veya Westin ATL Airport.</div>
+    </div></div>
+  </div>
+</div><!-- /plan-c -->
+
+<div class="dl-wrap">
+  <p style="font-size:0.72rem;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:14px;">İyi Yolculuklar Çağlar 🗺️</p>
+  <button class="dl-btn" onclick="downloadPage()">⬇ HTML Olarak İndir</button>
+</div>
+
+</div>
+
+<script>
+  function switchPlan(plan) {
+    document.querySelectorAll('.plan-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.plan-tab').forEach(t => { t.classList.remove('active-a','active-b','active-c'); });
+    document.getElementById('plan-' + plan).classList.add('active');
+    const tabs = document.querySelectorAll('.plan-tab');
+    if (plan === 'a') tabs[0].classList.add('active-a');
+    else if (plan === 'b') tabs[1].classList.add('active-b');
+    else tabs[2].classList.add('active-c');
+    document.querySelectorAll('#plan-' + plan + ' .day-section').forEach((d,i) => {
+      d.style.animation = 'none'; d.offsetHeight; d.style.animation = '';
+      d.style.animationDelay = (i * 0.07) + 's';
+    });
+  }
+  function toggleDay(el) { el.classList.toggle('open'); }
+  function downloadPage() {
+    const blob = new Blob([document.documentElement.outerHTML], { type: 'text/html' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'usa_gezi_plani_2026.html'; a.click();
+  }
+  document.querySelectorAll('.day-section').forEach((d, i) => { if (i !== 0) d.classList.remove('open'); });
+</script>
+</body>
+</html>
