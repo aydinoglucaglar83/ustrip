@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>USA Tam Gezi Planı 2026 — Çağlar</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --ink: #1a1410; --paper: #f5f0e8; --cream: #ede8dc;
+    --accent: #c0392b; --gold: #b8860b; --muted: #7a6f64;
+    --blue: #2c4a6e; --green: #2d6a2d; --purple: #6b3fa0;
+  }
+  body { background: var(--paper); color: var(--ink); font-family: 'DM Sans', sans-serif; min-height: 100vh; overflow-x: hidden; }
+  body::before {
+    content: ''; position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 0;
+  }
+  .container { max-width: 960px; margin: 0 auto; padding: 0 24px 80px; position: relative; z-index: 1; }
+
+  header { text-align: center; padding: 52px 0 36px; border-bottom: 2px solid var(--ink); margin-bottom: 0; }
+  .passport-stamp {
+    border: 3px solid var(--accent); border-radius: 50%; width: 76px; height: 76px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    color: var(--accent); opacity: 0.85; transform: rotate(-8deg); margin: 0 auto 18px;
+  }
+  .passport-stamp span { font-size: 9px; display: block; line-height: 1.5; }
+  .passport-stamp .year { font-size: 15px; font-weight: 700; }
+  h1 { font-family: 'Playfair Display', serif; font-size: clamp(2rem, 6vw, 3.4rem); font-weight: 900; line-height: 1.05; letter-spacing: -0.02em; }
+  .subtitle { font-size: 0.82rem; color: var(--muted); letter-spacing: 0.15em; text-transform: uppercase; margin-top: 10px; }
+
+  /* SUMMARY */
+  .summary-bar { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--ink); border: 1px solid var(--ink); border-top: none; margin-bottom: 0; }
+  .stat { background: var(--cream); padding: 16px 12px; text-align: center; }
+  .stat-number { font-family: 'Playfair Display', serif; font-size: 1.7rem; font-weight: 700; line-height: 1; display: block; margin-bottom: 3px; }
+  .stat-label { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted); }
+
+  /* PHASE HEADERS */
+  .phase-header {
+    display: flex; align-items: center; gap: 14px;
+    padding: 14px 20px; margin: 32px 0 16px;
+    color: white; font-size: 0.75rem; letter-spacing: 0.15em; text-transform: uppercase; font-weight: 500;
+  }
+  .phase-header.atlanta { background: var(--accent); }
+  .phase-header.drive { background: var(--blue); }
+  .phase-header.workshop { background: var(--green); }
+  .phase-header.dc { background: var(--purple); }
+  .phase-header.flight { background: var(--ink); }
+  .phase-icon { font-size: 1.2rem; }
+  .phase-title { font-family: 'Playfair Display', serif; font-size: 1rem; font-weight: 700; letter-spacing: 0; }
+  .phase-dates { font-size: 0.65rem; opacity: 0.8; margin-left: auto; letter-spacing: 0.1em; }
+
+  /* DAYS */
+  .day-section { margin-bottom: 24px; opacity: 0; transform: translateY(20px); animation: fadeUp 0.4s forwards; }
+  @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
+
+  .day-header { display: flex; align-items: flex-start; gap: 16px; cursor: pointer; user-select: none; }
+  .day-badge { flex-shrink: 0; width: 60px; height: 60px; color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: 'Playfair Display', serif; background: var(--ink); }
+  .day-badge.atlanta { background: var(--accent); }
+  .day-badge.drive { background: var(--blue); }
+  .day-badge.workshop { background: var(--green); }
+  .day-badge.dc { background: var(--purple); }
+  .day-badge.flight { background: var(--ink); }
+  .day-badge .day-num { font-size: 1.5rem; font-weight: 700; line-height: 1; }
+  .day-badge .day-month { font-size: 0.5rem; text-transform: uppercase; letter-spacing: 0.1em; }
+
+  .day-title-block { flex: 1; padding-top: 4px; }
+  .day-name { font-family: 'Playfair Display', serif; font-size: 1.1rem; font-weight: 700; }
+  .day-where { font-size: 0.72rem; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; margin-top: 2px; }
+  .day-toggle { font-size: 1rem; color: var(--muted); padding-top: 8px; transition: transform 0.3s; }
+  .day-section.open .day-toggle { transform: rotate(90deg); }
+  .day-body { max-height: 0; overflow: hidden; transition: max-height 0.45s cubic-bezier(0.4,0,0.2,1); }
+  .day-section.open .day-body { max-height: 2400px; }
+  .day-inner { padding: 14px 0 14px 76px; border-left: 2px solid var(--cream); margin-left: 30px; }
+
+  /* ACTIVITY */
+  .activity { display: flex; gap: 12px; margin-bottom: 10px; padding: 11px 13px; background: white; border: 1px solid var(--cream); transition: border-color 0.2s, box-shadow 0.2s; }
+  .activity:hover { border-color: var(--gold); box-shadow: 2px 2px 0 var(--cream); }
+  .activity-icon { font-size: 1.2rem; flex-shrink: 0; line-height: 1; padding-top: 2px; }
+  .activity-time { font-size: 0.62rem; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 2px; }
+  .activity-name { font-weight: 500; font-size: 0.88rem; margin-bottom: 2px; }
+  .activity-note { font-size: 0.76rem; color: var(--muted); line-height: 1.5; }
+  .tag { display: inline-block; font-size: 0.58rem; letter-spacing: 0.1em; text-transform: uppercase; padding: 2px 6px; margin-right: 3px; margin-top: 4px; border: 1px solid; }
+  .tag.free { color: var(--green); border-color: var(--green); }
+  .tag.paid { color: var(--accent); border-color: var(--accent); }
+  .tag.food { color: var(--gold); border-color: var(--gold); }
+  .tag.drive { color: var(--blue); border-color: var(--blue); }
+  .tag.work { color: var(--green); border-color: var(--green); }
+
+  .drive-card { display: flex; align-items: center; gap: 10px; background: var(--blue); color: white; padding: 10px 14px; margin-bottom: 10px; font-size: 0.78rem; }
+  .tips-box { background: var(--cream); border-left: 4px solid var(--gold); padding: 12px 16px; margin-top: 8px; font-size: 0.76rem; line-height: 1.7; }
+  .tips-box strong { display: block; margin-bottom: 4px; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--gold); }
+  .warn-box { background: #fff8f0; border-left: 4px solid var(--accent); padding: 11px 15px; margin-bottom: 10px; font-size: 0.76rem; line-height: 1.6; }
+  .warn-box strong { color: var(--accent); font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.1em; display: block; margin-bottom: 3px; }
+  .info-box { background: #f0f4ff; border-left: 4px solid var(--blue); padding: 11px 15px; margin-bottom: 10px; font-size: 0.76rem; line-height: 1.6; }
+  .info-box strong { color: var(--blue); font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.1em; display: block; margin-bottom: 3px; }
+  .work-box { background: #f0fff4; border-left: 4px solid var(--green); padding: 11px 15px; margin-bottom: 10px; font-size: 0.76rem; line-height: 1.6; }
+  .work-box strong { color: var(--green); font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.1em; display: block; margin-bottom: 3px; }
+
+  /* DOWNLOAD */
+  .dl-wrap { text-align: center; margin-top: 48px; padding-top: 28px; border-top: 2px solid var(--ink); }
+  .dl-btn { display: inline-block; background: var(--ink); color: var(--paper); font-family: 'DM Sans', sans-serif; font-size: 0.75rem; letter-spacing: 0.15em; text-transform: uppercase; padding: 13px 28px; cursor: pointer; border: none; transition: background 0.2s; }
+  .dl-btn:hover { background: var(--accent); }
+
+  @media (max-width: 600px) {
+    .summary-bar { grid-template-columns: repeat(2,1fr); }
+    .day-inner { padding-left: 14px; margin-left: 16px; }
+    .phase-dates { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+<header>
+  <div class="passport-stamp">
+    <span>APR</span><span class="year">2026</span><span>USA</span>
+  </div>
+  <h1>USA Tam Gezi Planı</h1>
+  <p class="subtitle">Çağlar · 11–21 Nisan 2026 · Atlanta → Wilmington → Washington DC</p>
+</header>
+
+<div class="summary-bar">
+  <div class="stat"><span class="stat-number">11</span><span class="stat-label">Gün</span></div>
+  <div class="stat"><span class="stat-number">3</span><span class="stat-label">Şehir</span></div>
+  <div class="stat"><span class="stat-number">4</span><span class="stat-label">Workshop Günü</span></div>
+  <div class="stat"><span class="stat-number">21:50</span><span class="stat-label">IAD → IST</span></div>
+</div>
+
+<!-- ===== BÖLÜM 1: ATLANTA ===== -->
+<div class="phase-header atlanta">
+  <span class="phase-icon">🏙️</span>
+  <span class="phase-title">Atlanta — Geçiş Günü</span>
+  <span class="phase-dates">11 Nisan</span>
+</div>
+
+<div class="day-section open" onclick="toggleDay(this)">
+  <div class="day-header">
+    <div class="day-badge atlanta"><span class="day-num">11</span><span class="day-month">Nis · Cum</span></div>
+    <div class="day-title-block"><div class="day-name">Atlanta'ya Varış</div><div class="day-where">✈️ IST → ATL | Varış 13:00</div></div>
+    <div class="day-toggle">▶</div>
+  </div>
+  <div class="day-body"><div class="day-inner">
+    <div class="warn-box"><strong>⚠️ Jet Lag Uyarısı</strong>İstanbul ile 7 saat fark var. Uçuşta uyumaya çalış, Atlanta'da gece erken uyu. Yarın sabah ~06:00'da Wilmington'a yola çıkacaksın.</div>
+    <div class="activity"><div class="activity-icon">✈️</div><div>
+      <div class="activity-time">13:00</div><div class="activity-name">ATL Hartsfield-Jackson Varış</div>
+      <div class="activity-note">Dünyanın en yoğun havalimanı. International Terminal (Maynard H. Jackson Jr.) → SkyTrain ile domestic terminale geç → Rental Car Center. 45–60 dk hesapla.</div>
+      <span class="tag drive">ATL Varış</span>
+    </div></div>
+    <div class="activity"><div class="activity-icon">🚗</div><div>
+      <div class="activity-time">14:30 – 15:30</div><div class="activity-name">Araba Kiralama — ATL</div>
+      <div class="activity-note">One-way kiralama, IAD Dulles'ta teslim edeceksin. AVIS/Hertz/Enterprise karşılaştır. Büyük araç alma — park sıkıntılı.</div>
+      <span class="tag drive">One-Way ATL→IAD</span>
+    </div></div>
+    <div class="activity"><div class="activity-icon">✊</div><div>
+      <div class="activity-time">16:00 – 17:30</div><div class="activity-name">MLK Jr. Ulusal Tarihi Park</div>
+      <div class="activity-note">Martin Luther King'in doğduğu ev, Ebenezer Kilisesi, anıt havuzu. ⚠️ 17:00'de kapanıyor, hızlı git. Dış mekan her zaman açık. Rating: 4.8/5. Ücretsiz!</div>
+      <span class="tag free">Ücretsiz</span>
+    </div></div>
+    <div class="activity"><div class="activity-icon">🏟️</div><div>
+      <div class="activity-time">17:30 – 18:30</div><div class="activity-name">Centennial Olympic Park</div>
+      <div class="activity-note">1996 Olimpiyatları anıtı. Georgia Aquarium ve World of Coca-Cola yanı başında — yarın için zaman yok ama dışından görürsün.</div>
+      <span class="tag free">Ücretsiz</span>
+    </div></div>
+    <div class="activity"><div class="activity-icon">🍖</div><div>
+      <div class="activity-time">19:00 – 20:30</div><div class="activity-name">Atlanta Akşam Yemeği</div>
+      <div class="activity-note">Fox Bros BBQ (gerçek Güney usulü) veya Varsity Drive-In (1928'den bu yana Atlanta ikonu). Jet lag ile ağır yeme!</div>
+      <span class="tag food">Akşam</span>
+    </div></div>
+    <div class="tips-box"><strong>🌙 Önemli — Erken Uyu!</strong>Yarın sabah 06:00'da yola çıkıyorsun. Wilmington ~7.5 saat sürüş. Otel: havalimanına yakın Marriott Gateway veya Westin ATL Airport önerilir.</div>
+  </div></div>
+</div>
+
+<!-- ===== BÖLÜM 2: SÜRÜŞ ===== -->
+<div class="phase-header drive">
+  <span class="phase-icon">🚗</span>
+  <span class="phase-title">Atlanta → Wilmington Sürüşü</span>
+  <span class="phase-dates">12 Nisan</span>
+</div>
+
+<div class="day-section" onclick="toggleDay(this)">
+  <div class="day-header">
+    <div class="day-badge drive"><span class="day-num">12</span><span class="day-month">Nis · Cmt</span></div>
+    <div class="day-title-block"><div class="day-name">Atlanta → Wilmington</div><div class="day-where">🚗 ~750 km · ~7.5 Saat</div></div>
+    <div class="day-toggle">▶</div>
+  </div>
+  <div class="day-body"><div class="day-inner">
+    <div class="drive-card">🚗 <span><strong>Atlanta → Wilmington</strong> — ~750 km | I-85 N → I-95 N → US-17 | Erken çık, akşam Wilmington'a var</span></div>
+    <div class="activity"><div class="activity-icon">☕</div><div>
+      <div class="activity-time">05:30 – 06:00</div><div class="activity-name">Çok Erken Kahvaltı & Yola Çıkış</div>
+      <div class="activity-note">06:00'da kesinlikle yolda ol. Atlanta sabah trafiğinden önce çık. I-85 North ile başla.</div>
+    </div></div>
+    <div class="activity"><div class="activity-icon">🌿</div><div>
+      <div class="activity-time">Yolda Mola — ~10:00</div><div class="activity-name">Fayetteville veya Raleigh Molası</div>
+      <div class="activity-note">~4 saatlik sürüşün ardından mola. Kahve, benzin, germe. Raleigh'de güzel kafeler var.</div>
+      <span class="tag food">Mola</span>
+    </div></div>
+    <div class="activity"><div class="activity-icon">🏖️</div><div>
+      <div class="activity-time">13:30 – 14:30</div><div class="activity-name">Wilmington'a Varış + Öğle</div>
+      <div class="activity-note">Doğrudan otele gidip check-in yap. Öğle yemeği için Riverwalk çevresine git.</div>
+      <span class="tag food">Öğle</span>
+    </div></div>
+    <div class="activity"><div class="activity-icon">🌊</div><div>
+      <div class="activity-time">15:00 – 17:00</div><div class="activity-name">Wilmington Riverwalk</div>
+      <div class="activity-note">Cape Fear Nehri kenarı. Uzun sürüş sonrası bacakları aç. USS North Carolina karşı kıyıda. Rating: 4.7/5.</div>
+      <span class="tag free">Ücretsiz</span>
+    </div></div>
+    <div class="activity"><div class="activity-icon">🌅</div><div>
+      <div class="activity-time">17:30 – 19:00</div><div class="activity-name">Wrightsville Beach</div>
+      <div class="activity-note">15 dk mesafede Atlantik sahili. Sürüş yorgunluğunu at, deniz havasını iç.</div>
+      <span class="tag free">Ücretsiz</span>
+    </div></div>
+    <div class="tips-box"><strong>🏨 Konaklama</strong>13–17 Nisan boyunca Wilmington'da aynı otelde kal — her gün bagaj taşımak yorucu. Downtown yakını ideal: Embassy Suites veya Hilton Wilmington Riverside (Riverwalk manzarası).</div>
+  </div></div>
+</div>
+
+<!-- ===== BÖLÜM 3: WORKSHOP ===== -->
+<div class="phase-header workshop">
+  <span class="phase-icon">🔬</span>
+  <span class="phase-title">Workshop — Boş Akşamlar</span>
+  <span class="phase-dates">13–16 Nisan</span>
+</div>
+
+<div class="day-section" onclick="toggleDay(this)">
+  <div class="day-header">
+    <div class="day-badge workshop"><span class="day-num">13</span><span class="day-month">Nis · Pzt</span></div>
+    <div class="day-title-block"><div class="day-name">Workshop Günü 1 + Akşam</div><div class="day-where">📍 Wilmington, NC</div></div>
+    <div class="day-toggle">▶</div>
+  </div>
+  <div class="day-body"><div class="day-inner">
+    <div class="work-box"><strong>🔬 Workshop — 08:00 – 17:00</strong>Gün boyunca çalıştay. Akşam 17:00'de serbest!</div>
+    <div class="activity"><div class="activity-icon">🍽️</div><div>
+      <div class="activity-time">17:00 – 18:00</div><div class="activity-name">Workshop Sonrası Öğle/Akşam</div>
+      <div class="activity-note">Front Street Brewery veya Boca Bay — Riverwalk yakını. İlk gece arkadaşlarla tanışma yemeği.</div>
+      <span class="tag food">Akşam</span>
+    </div></div>
+    <div class="activity"><div class="activity-icon">🏛️</div><div>
+      <div class="activity-time">18:30 – 20:00</div><div class="activity-name">Bellamy Mansion</div>
+      <div class="activity-note">Antebellum dönem konağı. Market Street üzerinde, yürüme mesafesi. Cuma akşama kadar açık. Rating: 4.6/5.</div>
+      <span class="tag paid">~$15</span>
+    </div></div>
+    <div class="activity"><div class="activity-icon">🚶</div><div>
+      <div class="activity-time">20:00 – 21:00</div><div class="activity-name">Downtown Wilmington Gece Yürüyüşü</div>
+      <div class="activity-note">Market Street ve Front Street. Küçük ama canlı bir downtown. Bar hopping yapabilirsin.</div>
+      <span class="tag free">Ücretsiz</span>
+    </div></div>
+  </div></div>
+</div>
+
+<div class="day-section" onclick="toggleDay(this)">
+  <div class="day-header">
+    <div class="day-badge workshop"><span class="day-num">14</span><span class="day-month">Nis · Sal</span></div>
+    <div class="day-title-block"><div class="day-name">Workshop Günü 2 + Akşam</div><div class="day-where">📍 Wilmington, NC</div></div>
+    <div class="day-toggle">▶</div>
+  </div>
+  <div class="day-body"><div class="day-inner">
+    <div class="work-box"><strong>🔬 Workshop — 08:00 – 17:00</strong>Gün boyunca çalıştay. Akşam 17:00'de serbest!</div>
+    <div class="activity"><div class="activity-icon">⚔️</div><div>
+      <div class="activity-time">17:30 – 19:00</div><div class="activity-name">USS North Carolina Savaş Gemisi</div>
+      <div class="activity-note">Cape Fear Nehri'nin karşı yakasında. 1941 yapımı savaş gemisi müzesi. İkinci Dünya Savaşı tarihi. Rating: 4.7/5.</div>
+      <span class="tag paid">~$14</span>
+    </div></div>
+    <div class="activity"><div class="activity-icon">🌊</div><div>
+      <div class="activity-time">19:00 – 20:00</div><div class="activity-name">Riverwalk Akşam Yürüyüşü</div>
+      <div class="activity-note">Gün batımında nehir kenarı yürüyüşü. Karşı yakada gemi silüeti mükemmel.</div>
+      <span class="tag free">Ücretsiz</span>
+    </div></div>
+    <div class="activity"><div class="activity-icon">🍺</div><div>
+      <div class="activity-time">20:00 →</div><div class="activity-name">Akşam Yemeği — Waterline Brewing</div>
+      <div class="activity-note">Yerel craft bira ve yemek. Wilmington'ın en iyi brewery restoranlarından.</div>
+      <span class="tag food">Akşam</span>
+    </div></div>
+  </div></div>
+</div>
+
+<div class="day-section" onclick="toggleDay(this)">
+  <div class="day-header">
+    <div class="day-badge workshop"><span class="day-num">15</span><span class="day-month">Nis · Çar</span></div>
+    <div class="day-title-block"><div class="day-name">Workshop Günü 3 + Akşam</div><div class="day-where">📍 Wilmington, NC</div></div>
+    <div class="day-toggle">▶</div>
+  </div>
+  <div class="day-body"><div class="day-inner">
+    <div class="work-box"><strong>🔬 Workshop — 08:00 – 17:00</strong>Gün boyunca çalıştay. Akşam 17:00'de serbest!</div>
+    <div class="activity"><div class="activity-icon">🌿</div><div>
+      <div class="activity-time">17:30 – 19:30</div><div class="activity-name">Airlie Gardens</div>
+      <div class="activity-note">67 dönümlük bahar bahçesi. Nisan = azalyalar tam açık. Akşama kadar açık (17:00 kapanış — bir gün öncesine al!) ⚠️ Saatini kontrol et. Rating: 4.8/5.</div>
+      <span class="tag paid">~$10</span>
+    </div></div>
+    <div class="activity"><div class="activity-icon">🌅</div><div>
+      <div class="activity-time">19:30 – 20:30</div><div class="activity-name">Wrightsville Beach Gün Batımı</div>
+      <div class="activity-note">15 dk mesafede. Haftanın ortasında tenha sahil, gün batımı muhteşem.</div>
+      <span class="tag free">Ücretsiz</span>
+    </div></div>
+    <div class="activity"><div class="activity-icon">🍤</div><div>
+      <div class="activity-time">20:30 →</div><div class="activity-name">Akşam Yemeği — Oceanic Restaurant</div>
+      <div class="activity-note">Wrightsville Beach'te deniz üstü restoran. Taze deniz ürünleri, muhteşem okyanus manzarası.</div>
+      <span class="tag food">Akşam</span>
+    </div></div>
+  </div></div>
+</div>
+
+<div class="day-section" onclick="toggleDay(this)">
+  <div class="day-header">
+    <div class="day-badge workshop"><span class="day-num">16</span><span class="day-month">Nis · Per</span></div>
+    <div class="day-title-block"><div class="day-name">Workshop Günü 4 + Son Akşam</div><div class="day-where">📍 Wilmington, NC</div></div>
+    <div class="day-toggle">▶</div>
+  </div>
+  <div class="day-body"><div class="day-inner">
+    <div class="work-box"><strong>🔬 Workshop — 08:00 – 17:00</strong>Son workshop günü! Akşam 17:00'de serbest.</div>
+    <div class="activity"><div class="activity-icon">🏛️</div><div>
+      <div class="activity-time">17:30 – 19:00</div><div class="activity-name">Burgwin-Wright House & Gardens</div>
+      <div class="activity-note">1771 yapımı kolonyal dönem evi. İçinde İngiliz Genel Cornwallis konaklamış. Rating: 4.7/5.</div>
+      <span class="tag paid">~$15</span>
+    </div></div>
+    <div class="activity"><div class="activity-icon">🛍️</div><div>
+      <div class="activity-time">19:00 – 20:00</div><div class="activity-name">Son Alışveriş — Downtown</div>
+      <div class="activity-note">Yarın Wilmington'dan ayrılıyorsun. Hediye almak istediğin varsa bugün al.</div>
+      <span class="tag paid">Alışveriş</span>
+    </div></div>
+    <div class="activity"><div class="activity-icon">🍷</div><div>
+      <div class="activity-time">20:00 →</div><div class="activity-name">Workshop Son Akşam Yemeği</div>
+      <div class="activity-note">Boca Bay veya Rx Restaurant — workshop ekibiyle veda yemeği. Yarın sabah erken çıkışın var!</div>
+      <span class="tag food">Veda Akşamı</span>
+    </div></div>
+    <div class="tips-box"><strong>🌙 Yarına Hazırlık</strong>Yarın sabah Washington DC'ye ~6 saat sürüş. Bavulları hazırla, otelden check-out al, 08:00'de yolda ol.</div>
+  </div></div>
+</div>
+
+<!-- ===== BÖLÜM 4: WASHINGTON DC ===== -->
+<div class="phase-header dc">
+  <span class="phase-icon">🏛️</span>
+  <span class="phase-title">Washington DC</span>
+  <span class="phase-dates">17–21 Nisan</span>
+</div>
+
+<div class="day-section" onclick="toggleDay(this)">
+  <div class="day-header">
+    <div class="day-badge dc"><span class="day-num">17</span><span class="day-month">Nis · Cum</span></div>
+    <div class="day-title-block"><div class="day-name">Wilmington → Washington DC</div><div class="day-where">🚗 NC → DC · ~6 Saat</div></div>
+    <div class="day-toggle">▶</div>
+  </div>
+  <div class="day-body"><div class="day-inner">
+    <div class="drive-card">🚗 <span><strong>Wilmington → Washington DC</strong> — ~500 km · ~6 saat | I-95 North | DC girişi tıkanık, +1 saat ekle</span></div>
+    <div class="activity"><div class="activity-icon">☕</div><div>
+      <div class="activity-time">07:30 – 08:00</div><div class="activity-name">Erken Kahvaltı & Yola Çıkış</div>
+      <div class="activity-note">08:00'de kesin yolda ol. I-95 North ile git. DC'ye 14:00–15:00 arası varış hedefle.</div>
+    </div></div>
+    <div class="activity"><div class="activity-icon">🌉</div><div>
+      <div class="activity-time">15:00 – 18:00</div><div class="activity-name">Lincoln Memorial + National Mall</div>
+      <div class="activity-note">Varışın ardından doğrudan Lincoln Memorial'a git. Akşam ışığında Reflecting Pool ve Washington Monument. Rating: 4.8/5. Gece de açık!</div>
+      <span class="tag free">Ücretsiz</span>
+    </div></div>
+    <div class="activity"><div class="activity-icon">🌆</div><div>
+      <div class="activity-time">18:00 – 19:30</div><div class="activity-name">Georgetown Keşfi</div>
+      <div class="activity-note">DC'nin en şık mahallesi. M Street ve Wisconsin Avenue boyunca yürüyüş, C&O Canal.</div>
+      <span class="tag free">Ücretsiz</span>
+    </div></div>
+    <div class="activity"><div class="activity-icon">🍷</div><div>
+      <div class="activity-time">19:30 →</div><div class="activity-name">Akşam Yemeği — Georgetown</div>
+      <div class="activity-note">Martin's Tavern (1933'ten bu yana, JFK'nın favori restoranı). DC'ye ilk gece için ikonik seçim.</div>
+      <span class="tag food">Akşam</span>
+    </div></div>
+    <div class="tips-box"><strong>🏨 Konaklama</strong>17–21 Nisan boyunca aynı otelde kal. Dupont Circle, Georgetown veya Downtown DC. Metro ile her yere ulaşırsın. Araba için valet parking al — DC'de park çok zor.</div>
+  </div></div>
+</div>
+
+<div class="day-section" onclick="toggleDay(this)">
+  <div class="day-header">
+    <div class="day-badge dc"><span class="day-num">18</span><span class="day-month">Nis · Cmt</span></div>
+    <div class="day-title-block"><div class="day-name">National Mall Tam Gün</div><div class="day-where">📍 Washington DC</div></div>
+    <div class="day-toggle">▶</div>
+  </div>
+  <div class="day-body"><div class="day-inner">
+    <div class="info-box"><strong>ℹ️ DC'de Ulaşım</strong>Arabanı otelde bırak! Metro + yürüyüş en iyi seçenek. SmarTrip kart al (metro girişlerinde). National Mall tamamen yürüme mesafesinde. Hepsi ücretsiz!</div>
+    <div class="activity"><div class="activity-icon">🦕</div><div>
+      <div class="activity-time">09:00 – 12:00</div><div class="activity-name">Smithsonian Natural History Museum</div>
+      <div class="activity-note">Hope Elması, dinozor fosilleri, okyanus sergisi. 4 saat bile az! Rating: 4.8/5. Ücretsiz.</div>
+      <span class="tag free">Ücretsiz</span>
+    </div></div>
+    <div class="activity"><div class="activity-icon">🍔</div><div>
+      <div class="activity-time">12:00 – 13:00</div><div class="activity-name">Öğle — National Mall Food Trucks</div>
+      <div class="activity-note">Mall boyunca food truck'lar. Hızlı ye, çok şey var!</div>
+      <span class="tag food">Öğle</span>
+    </div></div>
+    <div class="activity"><div class="activity-icon">🏛️</div><div>
+      <div class="activity-time">13:00 – 14:30</div><div class="activity-name">U.S. Capitol Dış Turu</div>
+      <div class="activity-note">İçi için çok öncesinden rezervasyon gerekiyor. Dışı ve merdivenleri ücretsiz. Capitol Reflecting Pool'dan fotoğraf.</div>
+      <span class="tag free">Dış ücretsiz</span>
+    </div></div>
+    <div class="activity"><div class="activity-icon">🗽</div><div>
+      <div class="activity-time">15:00 – 16:30</div><div class="activity-name">Washington Monument + WWII Memorial</div>
+      <div class="activity-note">Washington Monument üstüne çıkmak için $1 rezervasyon şart — önceden al. WWII Memorial yanı başında.</div>
+      <span class="tag free">Dış ücretsiz</span><span class="tag paid">İç ~$1</span>
+    </div></div>
+    <div class="activity"><div class="activity-icon">🌊</div><div>
+      <div class="activity-time">16:30 – 18:00</div><div class="activity-name">Vietnam & Korean War Memorials</div>
+      <div class="activity-note">Vietnam Anıtı'ndaki siyah granit duvar ve 58.000+ isim son derece etkileyici. Lincoln'e yürüme mesafesi.</div>
+      <span class="tag free">Ücretsiz</span>
+    </div></div>
+    <div class="activity"><div class="activity-icon">🌙</div><div>
+      <div class="activity-time">20:00 →</div><div class="activity-name">Gece Anıt Turu</div>
+      <div class="activity-note">DC'nin en büyük sırrı: anıtlar gece aydınlatılınca daha güzel! Lincoln, WWII Memorial, Washington Monument gece mutlaka gez.</div>
+      <span class="tag free">Ücretsiz</span>
+    </div></div>
+  </div></div>
+</div>
+
+<div class="day-section" onclick="toggleDay(this)">
+  <div class="day-header">
+    <div class="day-badge dc"><span class="day-num">19</span><span class="day-month">Nis · Paz</span></div>
+    <div class="day-title-block"><div class="day-name">Air & Space + Arlington</div><div class="day-where">📍 Washington DC + Virginia</div></div>
+    <div class="day-toggle">▶</div>
+  </div>
+  <div class="day-body"><div class="day-inner">
+    <div class="activity"><div class="activity-icon">✈️</div><div>
+      <div class="activity-time">09:30 – 12:30</div><div class="activity-name">Smithsonian Air & Space Museum</div>
+      <div class="activity-note">Wright Flyer, Apollo 11 kapsülü, Spirit of St. Louis — hepsi aynı çatı altında! Mekanik mühendis için rüya müze. ⚠️ Timed entry — önceden al. Rating: 4.6/5.</div>
+      <span class="tag free">Ücretsiz</span>
+    </div></div>
+    <div class="activity"><div class="activity-icon">🍽️</div><div>
+      <div class="activity-time">12:30 – 13:30</div><div class="activity-name">Öğle — Eastern Market</div>
+      <div class="activity-note">Capitol Hill'deki tarihi market, 1873'ten bu yana. Pazar günü canlı.</div>
+      <span class="tag food">Öğle</span>
+    </div></div>
+    <div class="activity"><div class="activity-icon">🪖</div><div>
+      <div class="activity-time">14:00 – 16:30</div><div class="activity-name">Arlington National Cemetery</div>
+      <div class="activity-note">400.000+ askerin yattığı kutsal alan. Bilinmeyen Asker Nöbet Değişimi (her saat başı — tam saat git!). JFK mezarı. Rating: 4.8/5.</div>
+      <span class="tag free">Ücretsiz</span>
+    </div></div>
+    <div class="activity"><div class="activity-icon">🌉</div><div>
+      <div class="activity-time">17:00 – 18:00</div><div class="activity-name">Key Bridge Yürüyüşü</div>
+      <div class="activity-note">Arlington'dan Georgetown'a köprü. Potomac River ve DC silüeti fotoğraf için muhteşem.</div>
+      <span class="tag free">Ücretsiz</span>
+    </div></div>
+    <div class="activity"><div class="activity-icon">🍺</div><div>
+      <div class="activity-time">19:00 →</div><div class="activity-name">Dupont Circle Akşamı</div>
+      <div class="activity-note">Rasika (Hint mutfağı, Obama'nın favorisi) veya Le Diplomate (Fransız bistro). DC'nin en iyi restoranları bu çevrede.</div>
+      <span class="tag food">Akşam</span>
+    </div></div>
+  </div></div>
+</div>
+
+<div class="day-section" onclick="toggleDay(this)">
+  <div class="day-header">
+    <div class="day-badge dc"><span class="day-num">20</span><span class="day-month">Nis · Pzt</span></div>
+    <div class="day-title-block"><div class="day-name">Capitol Hill & White House</div><div class="day-where">📍 Washington DC</div></div>
+    <div class="day-toggle">▶</div>
+  </div>
+  <div class="day-body"><div class="day-inner">
+    <div class="activity"><div class="activity-icon">📚</div><div>
+      <div class="activity-time">09:00 – 11:00</div><div class="activity-name">Library of Congress</div>
+      <div class="activity-note">Dünyanın en büyük kütüphanesi. Ana salon görsel şölen — ücretsiz girilebilir. Thomas Jefferson'ın koleksiyonu burada.</div>
+      <span class="tag free">Ücretsiz</span>
+    </div></div>
+    <div class="activity"><div class="activity-icon">⚖️</div><div>
+      <div class="activity-time">11:00 – 12:00</div><div class="activity-name">Supreme Court + Capitol Çevresi</div>
+      <div class="activity-note">ABD Yüksek Mahkemesi. Dış ve giriş ücretsiz. Capitol'e yürüme mesafesi.</div>
+      <span class="tag free">Ücretsiz</span>
+    </div></div>
+    <div class="activity"><div class="activity-icon">🏛️</div><div>
+      <div class="activity-time">13:00 – 14:30</div><div class="activity-name">White House Dış Turu</div>
+      <div class="activity-note">İçi için ay öncesinden randevu gerekiyor. Lafayette Square ve Pennsylvania Avenue'dan dış turu ücretsiz. Fotoğraf klasik.</div>
+      <span class="tag free">Ücretsiz</span>
+    </div></div>
+    <div class="activity"><div class="activity-icon">🌿</div><div>
+      <div class="activity-time">15:00 – 16:30</div><div class="activity-name">US Botanic Garden</div>
+      <div class="activity-note">Capitol'ün yanında tropik sera bahçesi. Nisan'da çiçekler harika. Ücretsiz.</div>
+      <span class="tag free">Ücretsiz</span>
+    </div></div>
+    <div class="activity"><div class="activity-icon">🛶</div><div>
+      <div class="activity-time">17:00 – 18:30</div><div class="activity-name">Georgetown Canal & Waterfront</div>
+      <div class="activity-note">C&O Canal boyunca yürüyüş. Georgetown Waterfront Park'ta Potomac manzarası.</div>
+      <span class="tag free">Ücretsiz</span>
+    </div></div>
+    <div class="activity"><div class="activity-icon">🍦</div><div>
+      <div class="activity-time">18:30 – 19:00</div><div class="activity-name">Georgetown Cupcake</div>
+      <div class="activity-note">Georgetown'ın ikonik cupcake dükkanı. TV'de de çıkmış, çok ünlü.</div>
+      <span class="tag food">Tatlı</span>
+    </div></div>
+    <div class="activity"><div class="activity-icon">🍽️</div><div>
+      <div class="activity-time">19:30 →</div><div class="activity-name">Son Akşam Yemeği — Old Ebbitt Grill</div>
+      <div class="activity-note">1856'dan bu yana, Beyaz Saray'a 2 dakika. DC'nin en ikonik restoranı. Yarın uçuşun var — hafif ye!</div>
+      <span class="tag food">Son Akşam</span>
+    </div></div>
+    <div class="tips-box"><strong>🌙 Yarına Hazırlık</strong>Uçuşun 21:50. Bavulları bugün hazırla. IAD (Dulles) şehir merkezine ~45 dk. 18:00'de havalimanında ol. Araç teslimi + check-in süresi hesapla.</div>
+  </div></div>
+</div>
+
+<!-- ===== BÖLÜM 5: DÖNÜŞ ===== -->
+<div class="phase-header flight">
+  <span class="phase-icon">✈️</span>
+  <span class="phase-title">Dönüş — IAD → İstanbul</span>
+  <span class="phase-dates">21 Nisan</span>
+</div>
+
+<div class="day-section" onclick="toggleDay(this)">
+  <div class="day-header">
+    <div class="day-badge flight"><span class="day-num">21</span><span class="day-month">Nis · Sal</span></div>
+    <div class="day-title-block"><div class="day-name">Son Sabah + IAD Dönüş ✈️</div><div class="day-where">📍 DC → IAD → İstanbul</div></div>
+    <div class="day-toggle">▶</div>
+  </div>
+  <div class="day-body"><div class="day-inner">
+    <div class="warn-box"><strong>⏰ Uçuş 21:50 | Havalimanında 18:30</strong>IAD (Dulles) DC merkezine ~45 dk. International uçuşlar için 3 saat önce ol. Araç teslimi + SkyTrain + check-in = en az 1.5 saat. 17:00'de yola çık.</div>
+    <div class="activity"><div class="activity-icon">☕</div><div>
+      <div class="activity-time">09:00 – 10:30</div><div class="activity-name">Son Kahvaltı — DC</div>
+      <div class="activity-note">Otelde ya da yakın kafede. Gevşe, bugün yoğun değil.</div>
+      <span class="tag food">Kahvaltı</span>
+    </div></div>
+    <div class="activity"><div class="activity-icon">🗽</div><div>
+      <div class="activity-time">11:00 – 13:00</div><div class="activity-name">Son Anıt — Görmediğin Kaldıysa</div>
+      <div class="activity-note">FDR Memorial, MLK Jr. Memorial veya National Mall'da son yürüyüş. Tüm anıtlar 24 saat açık.</div>
+      <span class="tag free">Ücretsiz</span>
+    </div></div>
+    <div class="activity"><div class="activity-icon">🛍️</div><div>
+      <div class="activity-time">13:00 – 15:00</div><div class="activity-name">Son Alışveriş</div>
+      <div class="activity-note">Smithsonian müze mağazaları en kaliteli DC hediyeleri. Capitol gift shop da güzel.</div>
+      <span class="tag paid">Alışveriş</span>
+    </div></div>
+    <div class="activity"><div class="activity-icon">🍔</div><div>
+      <div class="activity-time">15:00 – 16:00</div><div class="activity-name">Son Öğle — Ben's Chili Bowl</div>
+      <div class="activity-note">1958'den bu yana DC ikonu. Half-smoke (yarı sığır yarı domuz sosis) mutlaka dene. Obama da burada yemiş!</div>
+      <span class="tag food">Son Öğle</span>
+    </div></div>
+    <div class="activity"><div class="activity-icon">🚗</div><div>
+      <div class="activity-time">17:00 – 18:00</div><div class="activity-name">IAD Dulles'a Hareket</div>
+      <div class="activity-note">Otelden çıkış → IAD ~45 dk. Rental Car Center'da araç teslim et → Dulles IAD ana terminale geçiş.</div>
+      <span class="tag drive">IAD Airport</span>
+    </div></div>
+    <div class="activity"><div class="activity-icon">✈️</div><div>
+      <div class="activity-time">21:50</div><div class="activity-name">IAD → İstanbul</div>
+      <div class="activity-note">THY uçuşu. ~11–12 saat. İyi yolculuklar Çağlar! 🇹🇷 Harika bir gezi oldu!</div>
+      <span class="tag drive">IAD → IST</span>
+    </div></div>
+    <div class="tips-box"><strong>🧳 Duty-Free & Hediyeler</strong>DC'nin en iyi hediyeleri: Smithsonian poster/replikalar, Chesapeake Bay deniz tuzları, ABD bayrağı Capitol'den (gerçek!). Dulles'ta da iyi duty-free mağazaları var.</div>
+  </div></div>
+</div>
+
+<div class="dl-wrap">
+  <p style="font-size:0.72rem;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:14px;">İyi Yolculuklar Çağlar 🗺️ — 11 Nisan → 21 Nisan 2026</p>
+  <button class="dl-btn" onclick="downloadPage()">⬇ HTML Olarak İndir</button>
+</div>
+
+</div>
+<script>
+  function toggleDay(el) { el.classList.toggle('open'); }
+  function downloadPage() {
+    const blob = new Blob([document.documentElement.outerHTML], { type: 'text/html' });
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+    a.download = 'usa_tam_gezi_plani_2026.html'; a.click();
+  }
+  document.querySelectorAll('.day-section').forEach((d, i) => { if (i !== 0) d.classList.remove('open'); });
+</script>
+</body>
+</html>
